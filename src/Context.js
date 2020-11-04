@@ -65,27 +65,26 @@ const Context = React.createContext();
 const Provider = Context.Provider;
 class ProviderContainer extends Component {
   state = {
-    data: array,
     rooms: "",
-    sortedRooms: "",
-    featuredRooms: "",
+    sortedRooms: [],
+    featuredRooms: [],
     loading: true,
-    type:'all',
-    capacity:1,
-    price:0,
-    minPrice:0,
-    maxPrice:0,
-    minSize:0,
-    maxsize:0,
-    breakfast:false,
-    pets:false
+    type: "all",
+    capacity: 1,
+    price: 0,
+    minPrice: 0,
+    maxPrice: 0,
+    minSize: 0,
+    maxSize: 0,
+    breakfast: false,
+    pets: false,
   };
 
   componentDidMount = () => {
-    let mainRoom = (data) => {
+    let mainRoom = (array) => {
       // console.log(data);
 
-      let mapped = data.map((item) => {
+      let mapped = array.map((item) => {
         // console.log(item);
         let id = item.sys.id;
         let mainImages = item.fields.images.map((img) => img.fields.file.url);
@@ -102,9 +101,21 @@ class ProviderContainer extends Component {
     //then i would have done let ourRoom = mainRoom(arraydata)
     let ourRoom = mainRoom(array);
     // console.log(ourRoom);
+    let roomNow = [...ourRoom];
+    // console.log(roomNow);
     let featured = ourRoom.filter((item) => item.featured === true);
     // console.log(featured);
-    this.setState({ rooms: ourRoom, sortedRooms:ourRoom, featuredRooms: featured, loading: false });
+    let maxPrice=Math.max(...ourRoom.map(item=>item.price))
+    let maxSize=Math.max(...ourRoom.map(item=>item.size))
+    this.setState({
+      rooms: ourRoom,
+      sortedRooms: ourRoom,
+      featuredRooms: featured,
+      loading: false,
+      price:maxPrice,
+      maxPrice,
+      maxSize
+    });
     // let data = array.map((item) => {
     //   // console.log(item);
     //   let id = item.sys.id;
@@ -121,6 +132,7 @@ class ProviderContainer extends Component {
     //     loading: false,
     //   });
     // });
+    console.log(this.state.rooms);
   };
   giveSpecificRoom = (par) => {
     const data = [...this.state.rooms];
@@ -130,35 +142,67 @@ class ProviderContainer extends Component {
     return edit;
   };
 
-  handleChange=(event)=>{
-    const name=event.target.name
-    // const type=event.target.type
-    const value=event.target.value
-    const checked=event.target.checked
-    // console.log(name,type,value)
-    this.setState({
-      [name]:value
-    },this.setStateCallBackFunction)
-  }
-  setStateCallBackFunction=()=>{
-const{rooms,type,capacity,price,minPrice,maxPrice,minSize,maxsize,breakfast,pets}=this.state
-//  console.log(rooms)
-let tempRooms=[...rooms]
-if (type!=='all'){
-  tempRooms=tempRooms.map(item=>item.type===type)
-}
-this.setState({sortedRooms:tempRooms})
-}
+  handleChange = (event) => {
+    const type = event.target.type;
+    const name = event.target.name;
+    const target = event.target;
+    // const value = event.target.value
+    // const checked = event.target.checked;
+    const value = target.type === "checkbox" ? target.checked : target.value;
+    console.log(type, name, value);
+    this.setState(
+      {
+        [name]: value,
+      },
+      this.setStateCallBackFunction
+    );
+  };
+  setStateCallBackFunction = () => {
+    console.log("call back fnct");
+    let {
+      featuredRooms,
+      type,
+      rooms,
+      capacity,
+      price,
+      minPrice,
+      maxPrice,
+      minSize,
+      maxsize,
+      breakfast,
+      pets,
+    } = this.state;
+    let tempRoom = [...rooms];
+    console.log(tempRoom);
+    if (type !== "all") {
+      tempRoom = tempRoom.filter((item) => item.type === type);
+    }
+    capacity = parseInt(capacity);
+    if (capacity !==1) {
+      tempRoom = tempRoom.filter((item) => item.capacity >= capacity);
+    }
 
-  render() { 
+    price=parseInt(price)
+    tempRoom=tempRoom.filter(item=>item.price<=price)
+    this.setState({
+      sortedRooms: tempRoom,
+    });
+  };
+
+  render() {
     return (
-      <Provider value={{ ...this.state,handleChange:this.handleChange, specificRoom: this.giveSpecificRoom }}>
+      <Provider
+        value={{
+          ...this.state,
+          handleChange: this.handleChange,
+          specificRoom: this.giveSpecificRoom,
+        }}
+      >
         {this.props.children}
       </Provider>
     );
   }
 }
-const Consumer=Context.Consumer
+const Consumer = Context.Consumer;
 
-
-export { Context, Provider, ProviderContainer ,Consumer};
+export { Context, ProviderContainer, Consumer };

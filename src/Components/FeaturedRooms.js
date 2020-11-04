@@ -20,7 +20,7 @@ export default class FeaturedRooms extends Component {
             <Loading />
           ) : (
             featuredRooms.map((item) => <Room room={item} key={item.id} />)
-          )} 
+          )}
         </div>
       </section>
     );

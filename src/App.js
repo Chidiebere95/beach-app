@@ -1,5 +1,5 @@
 import React from "react";
-import './App.css'
+import "./App.css";
 import {
   BrowserRouter as Router,
   Route,
@@ -14,9 +14,8 @@ import Navbar from "./Components/Navbar";
 
 export default function App() {
   return (
-      
     <BrowserRouter>
-    <Navbar/>
+      <Navbar />
       <Switch>
         <Route exact path="/" component={Home} />
         <Route exact path="/rooms" component={Rooms} />
